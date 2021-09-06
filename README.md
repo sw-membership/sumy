@@ -1,96 +1,32 @@
-# Automatic text summarizer
+# sumy
 
-[![image](https://api.travis-ci.org/miso-belica/sumy.png?branch=master)](https://travis-ci.org/miso-belica/sumy)
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/miso-belica/sumy) 
+## 설치하는 방법
 
-Simple library and command line utility for extracting summary from HTML
-pages or plain texts. The package also contains simple evaluation
-framework for text summaries. Implemented summarization methods are described in the [documentation](docs/summarizators.md). I also maintain a list of [alternative implementations](docs/alternatives.md) of the summarizers in various programming languages.
+KoNLPy를 설치해야해서 과정이 좀 복잡합니다. 설치하기 전에 파이썬 가상환경을 켜주세요.
 
-## Is my natural language supported?
-There is a [good chance](docs/index.md#Tokenizer) it is. But if not it is [not too hard to add](docs/how-to-add-new-language.md) it.
+먼저 JDK를 설치하고, JAVA_HOME 환경변수를 설정해주어야 합니다. 윈도우 사용자라면 [여기](https://devpad.tistory.com/5#:~:text=%EB%90%98%EC%97%88%EB%8A%94%EC%A7%80%20%ED%99%95%EC%9D%B8%ED%95%98%EC%9E%90.-,'%EC%9C%88%EB%8F%84%EC%9A%B0%ED%82%A4%2BR'%EC%9D%84%20%EB%88%8C%EB%9F%AC%EC%84%9C%20%EB%82%98%ED%83%80%EB%82%9C%20%EC%8B%A4%ED%96%89%EC%B0%BD%EC%97%90,%EC%A3%BC%EC%86%8C%EA%B0%80%20%EC%9E%88%EB%8A%94%EC%A7%80%20%ED%99%95%EC%9D%B8%ED%95%B4%EB%B3%B4%EC%9E%90.)를 참고해서 설치해주세요.
 
-## Installation
+다음으로 Jpype 를 설치해주세요. 터미널에서 아래 명령어를 입력하면 됩니다.
 
-Make sure you have [Python](http://www.python.org/) 3.5+ and
-[pip](https://crate.io/packages/pip/)
-([Windows](http://docs.python-guide.org/en/latest/starting/install/win/),
-[Linux](http://docs.python-guide.org/en/latest/starting/install/linux/))
-installed. Run simply (preferred way):
-
-```sh
-$ [sudo] pip install sumy
-$ [sudo] pip install git+git://github.com/miso-belica/sumy.git  # for the fresh version
+```
+pip install --upgrade pip
+pip install JPype1-0.5.7-cp27-none-win_amd64.whl
 ```
 
-## Usage
+그리고 다음 명령어를 사용해서 필요한 파이썬 패키지를 모두 다운로드합니다.
 
-Sumy contains command line utility for quick summarization of documents.
-
-```sh
-$ sumy lex-rank --length=10 --url=http://en.wikipedia.org/wiki/Automatic_summarization # what's summarization?
-$ sumy luhn --language=czech --url=http://www.zdrojak.cz/clanky/automaticke-zabezpeceni/
-$ sumy edmundson --language=czech --length=3% --url=http://cs.wikipedia.org/wiki/Bitva_u_Lipan
-$ sumy --help # for more info
+```
+pip install -r requirements.txt
 ```
 
-Various evaluation methods for some summarization method can be executed
-by commands below:
+그러면 이제 sumy 를 사용할 수 있습니다. 아래는 테스트 코드입니다.
 
-```sh
-$ sumy_eval lex-rank reference_summary.txt --url=http://en.wikipedia.org/wiki/Automatic_summarization
-$ sumy_eval lsa reference_summary.txt --language=czech --url=http://www.zdrojak.cz/clanky/automaticke-zabezpeceni/
-$ sumy_eval edmundson reference_summary.txt --language=czech --url=http://cs.wikipedia.org/wiki/Bitva_u_Lipan
-$ sumy_eval --help # for more info
+```shell
+python3 test.py
+# 이것은 요약하고 싶은 문자열입니다.
+# 라고 나오면 성공
 ```
 
-If you don't want to bother by the installation, you can try it as a container.
+## 참고
 
-```sh
-$ docker run --rm misobelica/sumy lex-rank --length=10 --url=http://en.wikipedia.org/wiki/Automatic_summarization
-```
-
-## Python API
-
-Or you can use sumy like a library in your project. Create file `sumy_example.py` ([don't name it `sumy.py`](https://stackoverflow.com/questions/41334622/python-sumy-no-module-named-sumy-parsers-html)) with the code below to test it.
-
-```python
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-from __future__ import division, print_function, unicode_literals
-
-from sumy.parsers.html import HtmlParser
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.lsa import LsaSummarizer as Summarizer
-from sumy.nlp.stemmers import Stemmer
-from sumy.utils import get_stop_words
-
-
-LANGUAGE = "english"
-SENTENCES_COUNT = 10
-
-
-if __name__ == "__main__":
-    url = "https://en.wikipedia.org/wiki/Automatic_summarization"
-    parser = HtmlParser.from_url(url, Tokenizer(LANGUAGE))
-    # or for plain text files
-    # parser = PlaintextParser.from_file("document.txt", Tokenizer(LANGUAGE))
-    # parser = PlaintextParser.from_string("Check this out.", Tokenizer(LANGUAGE))
-    stemmer = Stemmer(LANGUAGE)
-
-    summarizer = Summarizer(stemmer)
-    summarizer.stop_words = get_stop_words(LANGUAGE)
-
-    for sentence in summarizer(parser.document, SENTENCES_COUNT):
-        print(sentence)
-```
-
-## Interesting projects using sumy
-
-I found some interesting projects while browsing the interner or sometimes people wrote me an e-mail with questions and I was curious how they use the sumy :)
-
-* [Learning to generate questions from text](https://software.intel.com/en-us/articles/using-natural-language-processing-for-smart-question-generation) - https://github.com/adityasarvaiya/Automatic_Question_Generation
-* Summarize your video to any duration - https://github.com/aswanthkoleri/VideoMash and similar https://github.com/OpenGenus/vidsum
-* Tool for collectively summarizing large discussions - https://github.com/amyxzhang/wikum
+[KoNLPy 설치](https://konlpy.org/ko/v0.5.2/install/)
